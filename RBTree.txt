@@ -1,0 +1,326 @@
+#include <iostream>
+using namespace std;
+
+#define BLACK 0
+#define RED 1
+typedef struct Tree{
+    Tree* node[2];
+    Tree* p;
+    int data;
+    bool color;
+}Tree;
+Tree* root,* nil;
+void init(){
+    nil = new Tree();
+    nil->node[0] = nil->node[1] = nil->p = NULL;
+    nil->color = BLACK;
+    root = nil;
+}
+void right_rotate(Tree* node){
+    Tree* temp = node->node[0];
+    node->node[0] = temp->node[1];
+    if(temp->node[1] != nil){
+        temp->node[1]->p = node;
+    }
+    temp->p = node->p;
+    if(node->p == nil){
+        root = temp;
+    }else{
+        if(node == node->p->node[0]){
+            node->p->node[0] = temp;
+        }else if(node == node->p->node[1]){
+            node->p->node[1] = temp;
+        }
+    }
+    temp->node[1] = node;
+    node->p = temp;
+}
+void left_rotate(Tree* node){
+    Tree* temp = node->node[1];
+    node->node[1] = temp->node[0];
+    if(temp->node[0] != nil){
+        temp->node[0]->p = node;
+    }
+    temp->p = node->p;
+    if(node->p == nil){
+        root = temp;
+    }else{
+        if(node == node->p->node[0]){
+            node->p->node[0] = temp;
+        }else if(node == node->p->node[1]){
+            node->p->node[1] = temp;
+        }
+    }
+    temp->node[0] = node;
+    node->p = temp;
+}
+void insert_fixup(Tree* x){
+    while(x->p->color == RED){
+        if(x->p == x->p->p->node[0]){
+            Tree* u = x->p->p->node[1];
+            if(u->color == RED){
+                u->color = BLACK;
+                x->p->color = BLACK;
+                x->p->p->color = RED;
+                x = x->p->p;
+            }else{
+                if(x == x->p->node[0]){
+                    x->p->color = BLACK;
+                    x->p->p->color = RED;
+                    right_rotate(x->p->p);
+                }else{
+                    x = x->p;
+                    left_rotate(x);
+                    x->p->color = BLACK;
+                    x->p->p->color = RED;
+                    right_rotate(x->p->p);
+                }
+            }
+        }else if(x->p == x->p->p->node[1]){
+            Tree* u = x->p->p->node[0];
+            if(u->color == RED){
+                u->color = BLACK;
+                x->p->color = BLACK;
+                x->p->p->color = RED;
+                x = x->p->p;
+            }else{
+                if(x == x->p->node[0]){
+                    x = x->p;
+                    right_rotate(x);
+                    x->p->color = BLACK;
+                    x->p->p->color = RED;
+                    left_rotate(x->p->p);
+                }else{
+                    x->p->color = BLACK;
+                    x->p->p->color = RED;
+                    left_rotate(x->p->p);
+                }
+            }
+        }
+    }
+    root->color = BLACK;
+}
+void insert(int data){
+    Tree* temp = root;
+    Tree* p = nil;
+    while(temp != nil){
+        p = temp;
+        if(data < temp->data){
+            temp = temp->node[0];
+        }else if(data > temp->data){
+            temp = temp->node[1];
+        }else{
+            return ;
+        }
+    }
+    Tree* node = new Tree();
+    node->data = data;
+    node->node[0] = node->node[1] = nil;
+    node->p = p;
+    node->color = RED;
+    if(p==nil){
+        root = node;
+    }else{
+        if(data < p->data){
+            p->node[0] = node;
+        }else if(data > p->data){
+            p->node[1] = node;
+        }
+    }
+    insert_fixup(node);
+}
+
+void bianli(Tree* node){
+    if(node==nil){
+        return ;
+    }else{
+        cout << node->data;
+        if(node->color == RED){
+            cout << "R";
+        }else{
+            cout << "B";
+        }cout << " ";
+        bianli(node->node[0]);
+        bianli(node->node[1]);
+    }
+}
+
+Tree* search(int data){
+    Tree* temp = root;
+    while(temp != nil){
+        if(data < temp->data){
+            temp = temp->node[0];
+        }else if(data > temp->data){
+            temp = temp->node[1];
+        }else{
+            return temp;
+        }
+    }
+    return NULL;
+}
+
+void transplant(Tree* u,Tree* v){
+    if(u->p == nil){
+        root = v;
+    }else if(u == u->p->node[0]){
+        u->p->node[0] = v;
+    }else{
+        u->p->node[1] = v;
+    }
+    v->p = u->p;
+}
+
+void delete_fixup(Tree* x){
+    while(x!=root&&x->color==BLACK){
+        if(x==x->p->node[0]){
+            Tree* w = x->p->node[1];
+            if(w->color == RED){
+                w->color = BLACK;
+                x->p->color = RED;
+                left_rotate(x->p);
+                w = x->p->node[1];
+            }
+            if(w->node[0]->color==BLACK&&w->node[1]->color==BLACK){
+                w->color = RED;
+                x = x->p;
+            }else{
+                if(w->node[1]->color == BLACK){
+                    w->node[0]->color = BLACK;
+                    w->color = RED;
+                    right_rotate(w);
+                    w = x->p->node[1];
+                }
+                w->color = x->p->color;
+                x->p->color = BLACK;
+                w->node[1]->color = BLACK;
+                left_rotate(x->p);
+                x = root;
+            }
+        }else if(x == x->p->node[1]){
+            Tree* w = x->p->node[0];
+            if(w->color == RED){
+                w->color = BLACK;
+                x->p->color = RED;
+                right_rotate(x->p);
+                w = x->p->node[0];
+            }
+            if(w->node[0]->color==BLACK&&w->node[1]->color==BLACK){
+                w->color = RED;
+                x = x->p;
+            }else{
+                if(w->node[0]->color == BLACK){
+                    w->node[1]->color = BLACK;
+                    w->color = RED;
+                    left_rotate(w);
+                    w = x->p->node[0];
+                }
+                w->color = x->p->color;
+                x->p->color = BLACK;
+                w->node[0]->color = BLACK;
+                right_rotate(x->p);
+                x = root;
+            }
+        }
+    }
+    x->color = BLACK;
+}
+
+void Tree_delete(Tree* &z){
+    if(z==NULL){
+        return ;
+    }
+    Tree* x = NULL;
+    Tree* y = z;
+    bool ycolor = y->color;
+    if(z->node[0] == nil){
+        x = z->node[1];
+        transplant(z,z->node[1]);
+    }else if(z->node[1] == nil){
+        x = z->node[0];
+        transplant(z,z->node[0]);
+    }else{
+        y = z->node[1];
+        while(y->node[0] != nil){
+            y = y->node[0];
+        }
+        x = y->node[1];
+        ycolor = y->color;
+
+        if(y->p == z){
+            x->p = y;
+            transplant(z,y);
+        }else{
+            transplant(y,y->node[1]);
+            y->node[1] = z->node[1];
+            y->node[1]->p = y;
+            transplant(z,y);
+        }
+        y->node[0] = z->node[0];
+        y->node[0]->p = y;
+        y->color = z->color;
+    }
+
+    if(ycolor == BLACK){
+        delete_fixup(x);
+    }
+    delete z;
+}
+
+void Delete(int data){
+    Tree* temp = search(data);
+    Tree_delete(temp);
+}
+int main(){
+    int data;
+    init();
+    for(int i = 0;i < 20;i++){
+        cin >> data;
+        insert(data);
+        bianli(root);
+        cout << endl;
+    }
+    cout << endl;
+    for(int i=0;i<10;i++){
+        cin >> data;
+        Delete(data);
+        bianli(root);
+        cout << endl;
+    }
+}
+///16 3 7 11 9 26 18 14 15
+
+///11B 7R 3B 9B 18R 15B 14R 16R 26B
+
+
+
+
+
+///1 134 21 235 318 12 34 3 99 198
+///99 21 3 1 12 34 235 134 198 318
+/*删除 1 以后
+99 21 3 12 34 235 134 198 318
+
+删除 134 以后
+99 21 3 12 34 235 198 318
+
+删除 21 以后
+99 12 3 34 235 198 318
+
+删除 235 以后
+99 12 3 34 318 198
+
+删除 318 以后
+99 12 3 34 198
+
+删除 12 以后
+99 34 3 198
+
+删除 34 以后
+99 3 198
+
+删除 3 以后
+99 198
+
+删除 99 以后
+198*/
+///12 1 9    2    0    11    7    19    4    15    18    5    14    13    10    16    6    3    8  17

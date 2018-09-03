@@ -1,0 +1,152 @@
+#include <iostream>
+using namespace std;
+
+typedef struct Tree{
+    Tree* node[2];////node[0]为左节点,node[1]为右节点
+    int height;
+    int data;
+}Tree;
+Tree* root;
+
+int getH(Tree* node){
+    if(node==NULL){
+        return -1;
+    }else{
+        return node->height;
+    }
+}
+
+void LL(Tree* &node){
+    Tree* temp = node->node[0];
+    node->node[0] = temp->node[1];
+    temp->node[1] = node;
+    node->height = max(getH(node->node[0]),getH(node->node[1]))+1;
+    temp->height = max(getH(temp->node[0]),getH(node->node[1]))+1;
+    node = temp;
+}
+
+void RR(Tree* &node){
+    Tree* temp = node->node[1];
+    node->node[1] = temp->node[0];
+    temp->node[0] = node;
+    node->height = max(getH(node->node[0]),getH(node->node[1]))+1;
+    temp->height = max(getH(temp->node[0]),getH(node->node[1]))+1;
+    node = temp;
+}
+
+void LR(Tree* &node){
+    RR(node->node[0]);
+    LL(node);
+}
+
+void RL(Tree* &node){
+    LL(node->node[1]);
+    RR(node);
+}
+
+void insert(Tree* &node,int data){
+    if(node==NULL){
+        node = new Tree();
+        node->data = data;
+    }else{
+        if(data < node->data){
+            insert(node->node[0],data);
+            if(getH(node->node[0])-getH(node->node[1]) > 1){
+                if(data < node->node[0]->data){//同于getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) >= 0
+                    LL(node);
+                }else if(data > node->node[0]->data){//同于getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) < 0
+                    LR(node);
+                }
+            }
+        }else if(data > node->data){
+            insert(node->node[1],data);
+            if(getH(node->node[0])-getH(node->node[1]) < -1){
+                if(data < node->node[1]->data){//同于getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) > 0
+                    RL(node);
+                }else if(data > node->node[1]->data){//同于getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) <= 0
+                    RR(node);
+                }
+            }
+        }
+    }
+    node->height = max(getH(node->node[0]),getH(node->node[1]))+1;
+}
+
+void Tree_delete(Tree* &node,int data){
+    if(node==NULL){
+        return ;
+    }else{
+        if(data < node->data){
+            Tree_delete(node->node[0],data);
+        }else if(data > node->data){
+            Tree_delete(node->node[1],data);
+        }else if(data == node->data){
+            if(node->node[0]==NULL&&node->node[1]==NULL){
+                delete node;
+                node = NULL;
+            }else if(node->node[0] != NULL&&node->node[1]==NULL){
+                Tree* temp = node->node[0];
+                delete node;
+                node = temp;
+            }else if(node->node[0]==NULL&&node->node[1] != NULL){
+                Tree* temp = node->node[1];
+                delete node;
+                node = temp;
+            }else if(node->node[0] != NULL&&node->node[1] != NULL){
+                Tree* temp = node->node[1];
+                while(temp->node[0]){
+                    temp = temp->node[0];
+                }
+                node->data = temp->data;
+                Tree_delete(node->node[1],temp->data);
+
+            }
+        }
+    }
+///////////////////////////////////Balance,如果当前node不为空，那就对此节点重新balance
+    if(node){
+        if(getH(node->node[0])-getH(node->node[1]) > 1){/////左子树比右子树高，且比右子树高出1层以上
+            if(getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) >= 0){//////左子树的左子树比左子树的右子树高或等高
+                LL(node);
+            }else if(getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) < 0){////左子树的左子树比左子树的右子树矮
+                LR(node);
+            }
+        }else if(getH(node->node[0])-getH(node->node[1]) < -1){////右子树比左子树高，且比右子树高出1层以上
+            if(getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) > 0){////右子树的左子树比右子树的右子树高
+                RL(node);
+            }else if(getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) <= 0){////右子树的左子树比右子树的右子树矮或等高
+                RR(node);
+            }
+        }
+        node->height = max(getH(node->node[0]),getH(node->node[1]))+1;
+    }
+}
+
+void bianli(Tree* node){
+    if(node==NULL){
+        return ;
+    }else{
+        cout << node->data << " ";
+        bianli(node->node[0]);
+        bianli(node->node[1]);
+    }
+}
+
+int main(){
+    int data;
+    for(int i = 0;i < 10;i++){
+        cin >> data;
+        insert(root,data);
+        bianli(root);
+        cout << endl;
+    }
+    for(int i = 0 ; i < 10;i++){
+        cin >> data;
+        Tree_delete(root,data);
+        bianli(root);
+        cout << endl;
+    }
+    bianli(root);
+}
+//2 1 0 3 4 5 6 9 8 7
+3 1 0 2 6 5 4 8 7 9
