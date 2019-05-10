@@ -2,7 +2,7 @@
 using namespace std;
 
 typedef struct Tree{
-    Tree* node[2];////node[0]Îª×ó½Úµã,node[1]ÎªÓÒ½Úµã
+    Tree* node[2];////node[0]ä¸ºå·¦èŠ‚ç‚¹,node[1]ä¸ºå³èŠ‚ç‚¹
     int height;
     int data;
 }Tree;
@@ -21,7 +21,7 @@ void LL(Tree* &node){
     node->node[0] = temp->node[1];
     temp->node[1] = node;
     node->height = max(getH(node->node[0]),getH(node->node[1]))+1;
-    temp->height = max(getH(temp->node[0]),getH(node->node[1]))+1;
+    temp->height = max(getH(temp->node[0]),getH(temp->node[1]))+1;
     node = temp;
 }
 
@@ -30,7 +30,7 @@ void RR(Tree* &node){
     node->node[1] = temp->node[0];
     temp->node[0] = node;
     node->height = max(getH(node->node[0]),getH(node->node[1]))+1;
-    temp->height = max(getH(temp->node[0]),getH(node->node[1]))+1;
+    temp->height = max(getH(temp->node[0]),getH(temp->node[1]))+1;
     node = temp;
 }
 
@@ -52,18 +52,18 @@ void insert(Tree* &node,int data){
         if(data < node->data){
             insert(node->node[0],data);
             if(getH(node->node[0])-getH(node->node[1]) > 1){
-                if(data < node->node[0]->data){//Í¬ÓÚgetH(node->node[0]->node[0])-getH(node->node[0]->node[1]) >= 0
+                if(data < node->node[0]->data){//åŒäºŽgetH(node->node[0]->node[0])-getH(node->node[0]->node[1]) >= 0
                     LL(node);
-                }else if(data > node->node[0]->data){//Í¬ÓÚgetH(node->node[0]->node[0])-getH(node->node[0]->node[1]) < 0
+                }else if(data > node->node[0]->data){//åŒäºŽgetH(node->node[0]->node[0])-getH(node->node[0]->node[1]) < 0
                     LR(node);
                 }
             }
         }else if(data > node->data){
             insert(node->node[1],data);
             if(getH(node->node[0])-getH(node->node[1]) < -1){
-                if(data < node->node[1]->data){//Í¬ÓÚgetH(node->node[1]->node[0])-getH(node->node[1]->node[1]) > 0
+                if(data < node->node[1]->data){//åŒäºŽgetH(node->node[1]->node[0])-getH(node->node[1]->node[1]) > 0
                     RL(node);
-                }else if(data > node->node[1]->data){//Í¬ÓÚgetH(node->node[1]->node[0])-getH(node->node[1]->node[1]) <= 0
+                }else if(data > node->node[1]->data){//åŒäºŽgetH(node->node[1]->node[0])-getH(node->node[1]->node[1]) <= 0
                     RR(node);
                 }
             }
@@ -103,18 +103,18 @@ void Tree_delete(Tree* &node,int data){
             }
         }
     }
-///////////////////////////////////Balance,Èç¹ûµ±Ç°node²»Îª¿Õ£¬ÄÇ¾Í¶Ô´Ë½ÚµãÖØÐÂbalance
+///////////////////////////////////Balance,å¦‚æžœå½“å‰nodeä¸ä¸ºç©ºï¼Œé‚£å°±å¯¹æ­¤èŠ‚ç‚¹é‡æ–°balance
     if(node){
-        if(getH(node->node[0])-getH(node->node[1]) > 1){/////×ó×ÓÊ÷±ÈÓÒ×ÓÊ÷¸ß£¬ÇÒ±ÈÓÒ×ÓÊ÷¸ß³ö1²ãÒÔÉÏ
-            if(getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) >= 0){//////×ó×ÓÊ÷µÄ×ó×ÓÊ÷±È×ó×ÓÊ÷µÄÓÒ×ÓÊ÷¸ß»òµÈ¸ß
+        if(getH(node->node[0])-getH(node->node[1]) > 1){/////å·¦å­æ ‘æ¯”å³å­æ ‘é«˜ï¼Œä¸”æ¯”å³å­æ ‘é«˜å‡º1å±‚ä»¥ä¸Š
+            if(getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) >= 0){//////å·¦å­æ ‘çš„å·¦å­æ ‘æ¯”å·¦å­æ ‘çš„å³å­æ ‘é«˜æˆ–ç­‰é«˜
                 LL(node);
-            }else if(getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) < 0){////×ó×ÓÊ÷µÄ×ó×ÓÊ÷±È×ó×ÓÊ÷µÄÓÒ×ÓÊ÷°«
+            }else if(getH(node->node[0]->node[0])-getH(node->node[0]->node[1]) < 0){////å·¦å­æ ‘çš„å·¦å­æ ‘æ¯”å·¦å­æ ‘çš„å³å­æ ‘çŸ®
                 LR(node);
             }
-        }else if(getH(node->node[0])-getH(node->node[1]) < -1){////ÓÒ×ÓÊ÷±È×ó×ÓÊ÷¸ß£¬ÇÒ±ÈÓÒ×ÓÊ÷¸ß³ö1²ãÒÔÉÏ
-            if(getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) > 0){////ÓÒ×ÓÊ÷µÄ×ó×ÓÊ÷±ÈÓÒ×ÓÊ÷µÄÓÒ×ÓÊ÷¸ß
+        }else if(getH(node->node[0])-getH(node->node[1]) < -1){////å³å­æ ‘æ¯”å·¦å­æ ‘é«˜ï¼Œä¸”æ¯”å³å­æ ‘é«˜å‡º1å±‚ä»¥ä¸Š
+            if(getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) > 0){////å³å­æ ‘çš„å·¦å­æ ‘æ¯”å³å­æ ‘çš„å³å­æ ‘é«˜
                 RL(node);
-            }else if(getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) <= 0){////ÓÒ×ÓÊ÷µÄ×ó×ÓÊ÷±ÈÓÒ×ÓÊ÷µÄÓÒ×ÓÊ÷°«»òµÈ¸ß
+            }else if(getH(node->node[1]->node[0])-getH(node->node[1]->node[1]) <= 0){////å³å­æ ‘çš„å·¦å­æ ‘æ¯”å³å­æ ‘çš„å³å­æ ‘çŸ®æˆ–ç­‰é«˜
                 RR(node);
             }
         }
